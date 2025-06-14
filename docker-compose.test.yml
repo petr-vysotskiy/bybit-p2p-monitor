@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  deno-rest:
+    container_name: deno-rest-test
+    environment:
+      MONGO_URI: $MONGO_URI
+      APP_NAME: $APP_NAME
+      JWT_ACCESS_TOKEN_EXP: $JWT_ACCESS_TOKEN_EXP
+      JWT_REFRESH_TOKEN_EXP: $JWT_REFRESH_TOKEN_EXP
+      SEED: $SEED
+      IP: $IP
+      HOST: $HOST
+      PORT: $PORT
+      PROTOCOL: $PROTOCOL
+      DB_NAME: $DB_NAME
+      CLIENT_PROTOCOL: $CLIENT_PROTOCOL
+      CLIENT_HOST: $CLIENT_HOST
+      CLIENT_PORT: $CLIENT_PORT
+    command: deno run test

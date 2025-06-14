@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  deno-rest:
+    container_name: deno-rest-dev
+    environment:
+      ENV: development
+    command: deno run start
