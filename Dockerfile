@@ -40,7 +40,10 @@ ENV DB_PATH=/app/data/database.duckdb
 COPY deno.json .
 COPY deno.lock .
 
-# Copy the entire project (excluding frontend node_modules due to .dockerignore)
+# Cache dependencies from lock file - this downloads and caches all modules
+RUN deno install
+
+# Copy the rest of the project
 COPY . .
 
 # Copy the built frontend from the frontend-builder stage
