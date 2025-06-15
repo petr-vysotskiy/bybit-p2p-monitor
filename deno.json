@@ -8,7 +8,7 @@
     "dev:backend": "deno run --allow-read --allow-write --allow-net --allow-env --allow-ffi --node-modules-dir=auto --watch app.ts",
     "dev:frontend": "cd frontend && deno run dev",
     "dev": "deno task dev:backend & deno task dev:frontend",
-    "frontend:build": "cd frontend && deno run build",
+    "frontend:build": "cd frontend && deno run --allow-read --allow-write --allow-env --allow-sys --allow-ffi --node-modules-dir=auto npm:typescript/tsc -b && deno run --allow-read --allow-write --allow-net --allow-env --allow-sys --allow-ffi --node-modules-dir=auto npm:vite@^6.3.5 build",
     "frontend:preview": "cd frontend && deno run preview"
   },
   "lint": {
@@ -55,6 +55,8 @@
     "@tajpouria/cors": "jsr:@tajpouria/cors@^1.2.1",
     "@zaubrik/djwt": "jsr:@zaubrik/djwt@^3.0.2",
     "supertest": "npm:supertest@^7.0.0",
-    "yup": "npm:yup@^1.6.1"
+    "yup": "npm:yup@^1.6.1",
+    "vite": "npm:vite@^6.3.5",
+    "typescript": "npm:typescript@~5.8.3"
   }
 }

@@ -1,0 +1,7 @@
+node_modules
+.git
+.vscode
+.DS_Store
+frontend/deno.lock
+frontend/node_modules
+*.log 
