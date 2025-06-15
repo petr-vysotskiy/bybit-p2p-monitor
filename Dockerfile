@@ -34,7 +34,7 @@ ENV PROTOCOL=http
 ENV CLIENT_HOST=localhost
 ENV CLIENT_PORT=9000
 ENV CLIENT_PROTOCOL=http
-ENV DB_PATH=./data/database.duckdb
+ENV DB_PATH=/app/data/database.duckdb
 
 # Copy package files first for better caching
 COPY deno.json .
