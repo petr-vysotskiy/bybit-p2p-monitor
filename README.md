@@ -8,7 +8,7 @@ A comprehensive web application that monitors and visualizes P2P trading offers 
 - **Interactive Charts** - Beautiful visualizations using Chart.js and Visx
 - **Responsive Design** - Works seamlessly on desktop and mobile devices
 - **RESTful API** - Well-structured backend with comprehensive endpoints
-- **Docker Support** - Easy deployment with Docker and Docker Compose
+- **Docker Support** - Easy deployment with Docker and Docker Compose (with optimized multi-stage builds)
 - **Automated Data Collection** - Background cron jobs for continuous data updates
 - **TypeScript Support** - Full TypeScript implementation for better code quality
 - **Pure Deno Stack** - Runs entirely on Deno runtime without Node.js dependency
@@ -16,7 +16,7 @@ A comprehensive web application that monitors and visualizes P2P trading offers 
 ## 🏗️ Architecture
 
 ### Backend
-- **Runtime**: Deno with Oak framework
+- **Runtime**: Deno 2.3.3 with Oak framework
 - **Database**: DuckDB for high-performance analytics and data persistence
 - **API**: RESTful endpoints with CORS support
 - **Background Jobs**: Automated P2P data fetching with configurable intervals
@@ -28,16 +28,16 @@ A comprehensive web application that monitors and visualizes P2P trading offers 
 - **Charts**: Chart.js and Visx for data visualization
 - **Routing**: React Router for navigation
 - **Styling**: Modern responsive CSS
-- **Runtime**: Built and served using pure Deno (no Node.js required)
+- **Runtime**: Built using Node.js in Docker, served by Deno in production
 
 ## 📦 Installation & Setup
 
 ### Prerequisites
 
-- [Deno](https://deno.land/) (version 2.1.9 or later)
+- [Deno](https://deno.land/) (version 2.3.3 or later)
 - [Docker](https://docker.com/) (optional, for containerized deployment)
 
-**Note**: Node.js is no longer required! The entire stack runs on Deno.
+**Note**: Node.js is no longer required for local development! The entire stack runs on Deno.
 
 ### Development Setup
 
@@ -122,7 +122,18 @@ deno task start
 
 ## 🐳 Docker Configuration
 
-The project includes multiple Docker configurations:
+The project uses an optimized multi-stage Docker build for efficient container images:
+
+### Multi-Stage Build Architecture
+1. **Frontend Builder Stage** (`node:18-alpine`)
+   - Builds React frontend with Vite
+   - Resolves React 19 compatibility issues with `--legacy-peer-deps`
+   - Generates optimized production assets
+
+2. **Main Application Stage** (`denoland/deno:2.3.3`)
+   - Runs Deno backend server
+   - Serves pre-built frontend assets
+   - Handles API requests and static file serving
 
 ### Services
 - **deno-rest**: Main backend API server and frontend host
@@ -133,6 +144,17 @@ The project includes multiple Docker configurations:
 - `PORT`: Server port (default: 9000)
 - `FETCH_INTERVAL`: Data fetching interval in seconds (default: 5)
 - `API_URL`: Backend API URL for cron service (`http://deno-rest:9000`)
+
+### Docker Build Process
+```bash
+# The Dockerfile automatically:
+# 1. Builds frontend using Node.js in first stage
+# 2. Copies built assets to Deno runtime in second stage
+# 3. Sets up production environment
+
+docker build -t bybit-p2p-monitor .
+docker run -p 9000:9000 bybit-p2p-monitor
+```
 
 ## 📁 Project Structure
 
@@ -152,13 +174,16 @@ bybit-p2p-monitor/
 │   ├── src/              # Frontend source code
 │   ├── dist/             # Built frontend files (generated)
 │   ├── package.json      # Frontend dependencies metadata
+│   ├── package-lock.json # Locked dependency versions
+│   ├── deno.lock         # Deno lockfile (version 5)
 │   └── vite.config.ts    # Vite configuration
 ├── docker-compose.yml    # Production Docker setup
 ├── docker-compose.dev.yml # Development Docker setup
-├── Dockerfile            # Backend + Frontend container definition
+├── Dockerfile            # Multi-stage container definition
 ├── Dockerfile.cron       # Cron service container
 ├── .dockerignore         # Docker ignore patterns
 ├── deno.json             # Deno configuration and dependencies
+├── deno.lock             # Main Deno lockfile
 └── start_dev.sh          # Development startup script
 ```
 
@@ -183,10 +208,10 @@ deno test --allow-all
 
 ## 🛠️ Development
 
-### Pure Deno Architecture
-- **No Node.js required**: Entire stack runs on Deno runtime
-- **npm compatibility**: Frontend dependencies handled via Deno's npm compatibility layer
-- **Unified tooling**: Single runtime for both backend and frontend building
+### Hybrid Architecture
+- **Local Development**: Pure Deno runtime for both backend and frontend building
+- **Docker Production**: Multi-stage build using Node.js for frontend, Deno for backend
+- **npm compatibility**: Frontend dependencies handled seamlessly
 - **TypeScript native**: Full TypeScript support without additional configuration
 
 ### Code Quality
@@ -201,17 +226,35 @@ deno test --allow-all
 
 ## 🚀 Key Technical Features
 
-### Deno-First Frontend Building
-- Vite runs through Deno's npm compatibility (`npm:vite@^6.3.5`)
-- TypeScript compilation via Deno (`npm:typescript@~5.8.3`)
-- No Node.js installation required
-- Build command: `deno task frontend:build`
+### Optimized Docker Build
+- **Multi-stage build**: Separate stages for frontend building and backend serving
+- **Dependency caching**: Layer caching for faster subsequent builds
+- **React 19 compatibility**: Resolved peer dependency conflicts with `--legacy-peer-deps`
+- **Minimal final image**: Only production assets and runtime in final container
+
+### Deno-First Development
+- **Local builds**: Vite runs through Deno's npm compatibility (`npm:vite@^6.3.5`)
+- **TypeScript compilation**: Via Deno (`npm:typescript@~5.8.3`)
+- **No Node.js required**: For local development and testing
+- **Build command**: `deno task frontend:build`
 
 ### Production Architecture
-- Single Docker container serves both API and static files
-- Optimized routing for SPA (Single Page Application)
-- Efficient static asset serving with proper caching headers
-- Environment-based configuration (development vs production)
+- **Single container**: Serves both API and static files efficiently
+- **Optimized routing**: SPA (Single Page Application) support with fallback to index.html
+- **Static asset serving**: Proper caching headers and MIME type detection
+- **Environment-based configuration**: Seamless development to production transition
+
+## 🔧 Troubleshooting
+
+### Docker Build Issues
+- **Port conflicts**: Stop existing containers with `docker stop <container-name>`
+- **Frontend build errors**: Multi-stage build isolates frontend dependencies
+- **React compatibility**: Legacy peer deps flag handles React 19 compatibility
+
+### Development Issues
+- **Deno lockfile version**: Ensure you have Deno 2.3.3+ for lockfile v5 support
+- **Permission errors**: Make sure to use the correct `--allow-*` flags
+- **Port availability**: Check that ports 9000 and 5173 are available
 
 ## 📄 License
 
@@ -231,4 +274,4 @@ For issues and questions, please check the existing issues or create a new one i
 
 ---
 
-**Note**: This project demonstrates a modern approach to web development using Deno as the primary runtime for both backend services and frontend building, eliminating the need for Node.js while maintaining full compatibility with the npm ecosystem.
+**Note**: This project demonstrates a modern approach to web development using Deno as the primary runtime for development while leveraging Docker's multi-stage builds for optimized production deployments. The architecture eliminates Node.js dependency for local development while maintaining full compatibility with the npm ecosystem.

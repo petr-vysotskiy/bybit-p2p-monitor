@@ -1,4 +1,22 @@
-FROM denoland/deno:2.1.9
+# Use a multi-stage build
+FROM node:18-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy frontend package files
+COPY frontend/package.json frontend/package-lock.json ./
+
+# Install frontend dependencies with legacy peer deps to handle React 19 compatibility
+RUN npm ci --legacy-peer-deps
+
+# Copy frontend source code
+COPY frontend/ ./
+
+# Build the frontend
+RUN npm run build
+
+# Main application stage
+FROM denoland/deno:2.3.3
 
 EXPOSE 9000
 
@@ -22,7 +40,10 @@ ENV DB_PATH=./data/database.duckdb
 COPY deno.json .
 COPY deno.lock .
 
-# Copy the entire project (with pre-built frontend/dist)
+# Copy the entire project (excluding frontend node_modules due to .dockerignore)
 COPY . .
+
+# Copy the built frontend from the frontend-builder stage
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 CMD ["deno", "task", "start"]
