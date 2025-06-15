@@ -1,0 +1,20 @@
+FROM alpine:3.18
+
+# Install curl and bash
+RUN apk add --no-cache curl bash
+
+# Create app directory
+WORKDIR /app
+
+# Copy scripts
+COPY scripts/ ./scripts/
+
+# Make scripts executable
+RUN chmod +x ./scripts/*.sh
+
+# Set default environment variables
+ENV FETCH_INTERVAL=5
+ENV API_URL=http://deno-rest:9000
+
+# Run the cron runner
+CMD ["./scripts/cron-runner.sh"] 

@@ -10,7 +10,7 @@ const { env, url, port, clientUrl } = configs;
 const app: Application = new Application();
 
 const corsOptions = {
-  'origin': clientUrl,
+  'origin': [clientUrl, 'http://localhost:5174', 'http://localhost:5173'],
   'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
   'preflightContinue': false,
   'optionsSuccessStatus': 200,

@@ -6,38 +6,33 @@ services:
     image: deno-rest
     ports:
       - '9000:9000'
-    depends_on:
-      - mongo
     restart: on-failure
     container_name: 'deno-rest'
-    networks:
-      - network
-    logging:
-      options:
-        max-size: '5k'
-
-  mongo:
-    image: mongo:latest
-    restart: always
-    healthcheck:
-      test: ['CMD-SHELL', "echo 'db.runCommand({ping: 1}).ok' | mongo --quiet"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    ports:
-      - '27017:27017'
-    container_name: 'mongo_db_server'
     volumes:
-      - mongo_data:/data/db
+      - ./data:/app/data
     networks:
       - network
     logging:
       options:
         max-size: '5k'
 
-volumes:
-  mongo_data:
+  p2p-cron:
+    build:
+      context: .
+      dockerfile: Dockerfile.cron
+    image: p2p-cron
+    restart: on-failure
+    container_name: 'p2p-cron'
+    environment:
+      - FETCH_INTERVAL=5
+      - API_URL=http://deno-rest:9000
+    networks:
+      - network
+    depends_on:
+      - deno-rest
+    logging:
+      options:
+        max-size: '10k'
 
 networks:
   network:
